@@ -1,0 +1,8 @@
+name: AutoReboot
+version: '${project.version}'
+main: com.justinmtech.autoreboot.autoreboot.AutoReboot
+api-version: 1.13
+prefix: AutoReboot
+authors: [ justinmtech ]
+description: Automatically trigger reboots every x amount of time.
+website: https://justinmtech.com
