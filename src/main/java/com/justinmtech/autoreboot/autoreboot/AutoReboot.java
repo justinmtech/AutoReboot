@@ -9,9 +9,11 @@ import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
 
 public final class AutoReboot extends JavaPlugin implements Listener {
+    private boolean hasAnnounced;
 
     @Override
     public void onEnable() {
+        setHasAnnounced(false);
         saveDefaultConfig();
         rebootChecker();
         getLogger().log(Level.INFO, "Plugin enabled.");
@@ -26,32 +28,48 @@ public final class AutoReboot extends JavaPlugin implements Listener {
         return (int) ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
     }
 
-    private int getUpTimeInHours() {
-        int seconds = (int) ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
-        int minutes = seconds / 60;
-        return minutes * 60;
-    }
-
-    private int getRebootTime() {
-        return getConfig().getInt("interval");
+    private int getRebootInterval() {
+        return getConfig().getInt("interval", 24);
     }
 
     private boolean isOneMinuteBefore() {
-        return getRebootTime() - getUpTimeInSeconds() == 60;
+        return getRebootInterval() - getUpTimeInSeconds() <= 60;
     }
 
     private boolean isRebootTime() {
-        return getUpTimeInSeconds() >= getRebootTime();
+        return getUpTimeInSeconds() >= getRebootInterval();
     }
 
 
-    public void rebootChecker() {
+    private void rebootChecker() {
+        String msg = getConfig().getString("warning", "§cThe server is rebooting in 1 minute!");
+        int playerThreshold = getConfig().getInt("player-threshold", 0);
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (isOneMinuteBefore()) Bukkit.broadcastMessage(getConfig().getString("warning"));
-                if (isRebootTime()) Bukkit.shutdown();
+                if (getOnlinePlayerCount() <= playerThreshold) {
+                    if (isOneMinuteBefore() && !isHasAnnounced()) {
+                        Bukkit.broadcastMessage(msg);
+                        setHasAnnounced(true);
+                    }
+                    if (isRebootTime()) {
+                        cancel();
+                        Bukkit.shutdown();
+                    }
+                }
             }
-        }.runTaskTimerAsynchronously(this, 20L, 20L);
+        }.runTaskTimer(this, 1200L, 1200L);
+    }
+
+    private int getOnlinePlayerCount() {
+        return Bukkit.getOnlinePlayers().size();
+    }
+
+    private boolean isHasAnnounced() {
+        return hasAnnounced;
+    }
+
+    private void setHasAnnounced(boolean hasAnnounced) {
+        this.hasAnnounced = hasAnnounced;
     }
 }
