@@ -11,7 +11,7 @@
 
     <name>AutoReboot</name>
 
-    <description>Automatically trigger reboots every x amount of time.</description>
+    <description>Automatically trigger reboots on an interval.</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
