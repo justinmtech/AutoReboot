@@ -34,7 +34,7 @@ public final class AutoReboot extends JavaPlugin implements Listener {
     }
     private int getUptimeInHours() {
         int seconds = getUptimeInSeconds();
-        int minutes = seconds * 60;
+        int minutes = seconds / 60;
         return minutes / 60;
     }
 
@@ -73,7 +73,7 @@ public final class AutoReboot extends JavaPlugin implements Listener {
                     }
                 }
             }
-        }.runTaskTimer(this, 1200L, 1200L);
+        }.runTaskTimer(this, 600L, 600L);
     }
 
     private int getOnlinePlayerCount() {
